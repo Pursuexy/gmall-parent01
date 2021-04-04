@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itcast.gmall.pms.mapper.ProductAttributeValueMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, product_id, product_attribute_id, value
+    </sql>
+
+    <!--查询商品的spu属性及其值-->
+    <select id="selectProductBaseAttributeAndValue" resultType="com.itcast.gmall.es.product.EsProductAttributeValue">
+        select ppav.*,ppa.name,ppa.type from pms_product_attribute_value ppav
+            left join pms_product_attribute ppa
+            on ppa.id=ppav.product_attribute_id
+        where ppav.product_id=#{id} and ppa.type=1;
+    </select>
+
+    <!--查询商品的sku销售属性名称-->
+    <select id="selectProductSaleAttributeName" resultType="com.itcast.gmall.pms.entity.ProductAttribute">
+        select ppa.* from pms_product_attribute ppa
+        where ppa.product_attribute_category_id = (
+            select ppav.product_attribute_id
+            from pms_product_attribute_value ppav
+                     left join pms_product_attribute p
+                               on ppav.product_attribute_id = p.id
+            where ppav.product_id = #{id}
+              and p.type = 0
+            limit 1
+        )
+          and ppa.type = 0
+        order by ppa.sort desc;
+    </select>
+
+</mapper>
